@@ -5,48 +5,69 @@
     <meta charset="UTF-8">
     <title>Viewer eBook - Semua Halaman</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        #pdf-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        canvas {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            max-width: 100%;
+            height: auto;
+        }
+
+        @media print {
+            body {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 
 <body oncontextmenu="return false">
 
     <div id="pdf-container"></div>
 
-
-
     <script>
-        const url = 'MANASIK KESEHATAN HAJI.pdf'; 
+        const url = 'MANASIK KESEHATAN HAJI.pdf';
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         const container = document.getElementById('pdf-container');
 
-        pdfjsLib.getDocument({
-            url: url,
-            disableStream: true,
-            disableAutoFetch: true
-        }).promise.then(function (pdf) {
+        pdfjsLib.getDocument({ url }).promise.then(pdf => {
             const totalPages = pdf.numPages;
 
             for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
-                pdf.getPage(pageNumber).then(function (page) {
-                    const scale = 1.5;
-                    const viewport = page.getViewport({ scale: scale });
+                pdf.getPage(pageNumber).then(page => {
+                    const viewport = page.getViewport({ scale: 1 });
 
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
                     canvas.width = viewport.width;
+                    canvas.height = viewport.height;
 
                     container.appendChild(canvas);
 
-                    const renderContext = {
+                    page.render({
                         canvasContext: context,
                         viewport: viewport
-                    };
-                    page.render(renderContext);
+                    });
                 });
             }
-        }).catch(function (error) {
+        }).catch(error => {
             console.error('Gagal memuat PDF:', error);
         });
 
